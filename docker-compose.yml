@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  my_internal_network: # Custom internal network
+    driver: bridge
+
 services:
   postgres:
     image: postgres:latest
@@ -8,11 +12,50 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: Donor_Db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=Donor_Db
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - my_internal_network # Assigning to the internal network
+
+  nextjs-app:
+    image: eliasemon/nextjs-app:latest
+    container_name: nextjs-app
+    environment:
+      - INNGEST_DEV=1
+      - INNGEST_BASE_URL=http://inngest:8288
+      - API_KEY=rkdxmdjvwymdqqbhzxsztpxqmamradxozovnymkdppsxuxexiqcmdtmgvmvcyfncgsnfiikgwkdanbswwocmczvpqhisihxezuvmesreagxxisyoakbjpqqvmhdzbzpps
+      - Site_Url=http://nextjs-app:3000
+      - DB_USER=postgres
+      - DB_HOST=postgres
+      - DB_NAME=Donor_Db
+      - DB_PASSWORD=mysecretpassword
+      - DB_PORT=5432
+    restart: always
+    ports:
+      - "3000:3000"
+    # env_file:
+    #   - .env.local # Ensuring environment variables are loaded from .env.local
+    depends_on:
+      - postgres
+    networks:
+      - my_internal_network # Assigning to the internal network
+  
+  inngest:
+    image: inngest/inngest:v0.27.0
+    command: 'inngest dev -u http://nextjs-app:3000/api/inngest'
+    ports:
+      - '8288:8288'
+    # depends_on:
+    #   - nextjs-app
+    networks:
+      - my_internal_network # Assigning to the internal network
 
 volumes:
   postgres_data:
+  node_modules:
+  build:

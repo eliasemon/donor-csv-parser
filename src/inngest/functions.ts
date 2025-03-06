@@ -12,7 +12,7 @@ interface Contact {
   total_amount?: number;
 }
 
-const apiUrl = `${process.env.SITE_URL}/api/files`; // Ensure correct environment variable name
+const apiUrl = `${process.env.Site_Url}/api/files`; // Ensure correct environment variable name
 const apiKey = process.env.API_KEY as string;
 
 export const processCsv = inngest.createFunction(
@@ -20,6 +20,8 @@ export const processCsv = inngest.createFunction(
   { event: 'csv/upload' },
   async ({ event }) => {
     const { fileId } = event.data;
+
+    // console.log(`Processing file api: ${apiUrl}`);
 
     try {
       // Fetch the file as a stream
@@ -46,7 +48,7 @@ export const processCsv = inngest.createFunction(
             try {
               const { first_name, last_name, email, total_amount } = row;
               const amount = total_amount ? Number(total_amount) : 0;
-              console.log(row);
+              // console.log(row);
               if (email) {
                 await pool.query(
                   `INSERT INTO contacts (first_name, last_name, email, total_amount, created_at)

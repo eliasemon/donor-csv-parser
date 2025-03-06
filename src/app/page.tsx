@@ -63,10 +63,10 @@ export default function UploadPage() {
       });
 
       if (res.ok) {
-        const result = await res.json();
+        await res.json();
         setStatus({
           type: "success",
-          message: `File uploaded successfully as ${result.fileId}`,
+          message: `File uploaded successfully`,
         });
         setUploadedFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -125,7 +125,7 @@ export default function UploadPage() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
                 >
                   Browse files
                 </button>
